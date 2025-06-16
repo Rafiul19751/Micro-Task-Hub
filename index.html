@@ -1,0 +1,653 @@
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'ec78c50f066b48f2ed340fc3e8a0ec14',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/ec78c50f066b48f2ed340fc3e8a0ec14/invoke.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Task Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Variables for Theming --- */
+        :root {
+            --primary-color: #00a8ff;
+            --primary-glow: rgba(0, 168, 255, 0.4);
+            --secondary-color: #9c88ff;
+            --background-dark: #1f2833;
+            --background-light: #2c3e50;
+            --text-color: #c5c6c7;
+            --text-accent: #66fcf1;
+            --success-color: #45a29e;
+            --disabled-color: #4a4a4a;
+            --card-bg: #2a3441;
+            --border-color: #4f5b66;
+        }
+
+        /* --- General Styles & Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            padding-bottom: 80px; /* Space for footer */
+            overflow-x: hidden;
+        }
+
+        /* --- Captcha Overlay --- */
+        #captcha-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+        #captcha-box {
+            background-color: var(--card-bg);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.5s ease-out;
+        }
+        #captcha-box h2 {
+            color: var(--text-accent);
+            margin-top: 0;
+        }
+        #captcha-box input {
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            width: 100px;
+            transition: all 0.3s ease;
+        }
+        #captcha-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        #captcha-box button {
+            padding: 12px 25px;
+            background-image: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        #captcha-box button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(156, 136, 255, 0.4);
+        }
+
+        /* --- Main Content --- */
+        #main-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* --- Task Card Style --- */
+        .task-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, opacity 0.4s ease;
+        }
+        .task-card.completed {
+            opacity: 0.6;
+            background-color: var(--background-light);
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .task-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+        }
+        .task-reward {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-accent);
+        }
+        .task-actions button {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background-image: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: all 0.3s ease;
+        }
+        .task-actions button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--primary-glow);
+        }
+        .task-actions button:disabled {
+            background: var(--disabled-color);
+            cursor: not-allowed;
+        }
+        .screenshot-upload {
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .screenshot-upload.enabled {
+            display: block;
+        }
+        .screenshot-upload input[type="file"] {
+            margin-bottom: 10px;
+            width: 100%;
+            color: var(--text-color);
+        }
+        .screenshot-upload button {
+            background-color: var(--success-color);
+        }
+        .screenshot-upload button:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(69, 162, 158, 0.4);
+        }
+
+        /* --- Wallet & Reffer Tabs --- */
+        .info-card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .info-card h3 { margin: 0; font-weight: 400; }
+        #total-balance {
+            font-size: 3rem;
+            color: var(--text-accent);
+            margin: 10px 0;
+            font-weight: 700;
+        }
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+        .payment-method img {
+            width: 100%;
+            max-width: 100px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .payment-method img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        
+        #referral-link-input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+        
+        /* --- Footer Navigation --- */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--background-light);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+        }
+        .footer-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            gap: 4px;
+        }
+        .footer-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: fill 0.3s ease;
+        }
+        .footer-btn.active {
+            color: var(--text-accent);
+        }
+        .footer-btn.active svg {
+            fill: var(--text-accent);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Captcha Section -->
+    <div id="captcha-overlay">
+        <div id="captcha-box">
+            <h2>Human Verification</h2>
+            <p>Please solve the simple math below.</p>
+            <p id="captcha-question" style="font-size: 1.8rem; font-weight: bold; color: white;"></p>
+            <input type="number" id="captcha-answer" placeholder="Answer">
+            <button id="verify-captcha-btn">Verify</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+
+        <!-- Work Tab -->
+        <div id="work-tab-content" class="tab-content active">
+            <!-- Tasks will be dynamically generated here -->
+        </div>
+
+        <!-- Wallet Tab -->
+        <div id="wallet-tab-content" class="tab-content">
+            <div class="info-card">
+                <h3>Total Earnings</h3>
+                <h2 id="total-balance">$0.00</h2>
+                <p>Referral Count: <span id="referral-count">0</span></p>
+                <small>Note: Minimum withdrawal is $100.00</small>
+            </div>
+            <h3>Withdrawal Methods</h3>
+            <div class="payment-methods">
+                <div class="payment-method">
+                    <!-- IMPORTANT: Replace with your actual image URLs from GitHub Raw -->
+                    <img src="binance.png" alt="Binance" data-method="Binance">
+                    <p>Binance</p>
+                </div>
+                <div class="payment-method">
+                    <img src="Paypal.png" alt="Paypal" data-method="Paypal">
+                    <p>Paypal</p>
+                </div>
+                <div class="payment-method">
+                    <img src="Bkash.png" alt="bKash" data-method="bKash">
+                    <p>bKash</p>
+                </div>
+                <div class="payment-method">
+                    <img src="Nagad.png" alt="Nagad" data-method="Nagad">
+                    <p>Nagad</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reffer Tab -->
+        <div id="reffer-tab-content" class="tab-content">
+            <div class="info-card">
+                <h2>Refer a Friend</h2>
+                <p>Earn <strong>$10.00</strong> for every friend that signs up using your link!</p>
+                <input type="text" id="referral-link-input" readonly>
+                <button id="copy-ref-link-btn" class="task-actions button">Copy Referral Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <button id="work-btn" class="footer-btn active">
+            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+            Work
+        </button>
+        <button id="wallet-btn" class="footer-btn">
+             <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            Wallet
+        </button>
+        <button id="reffer-btn" class="footer-btn">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            Refer
+        </button>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Global State ---
+            let userBalance = 0;
+            let referralCount = 0;
+            const MIN_WITHDRAWAL = 100;
+            const TASK_REWARD = 2;
+            const REFERRAL_REWARD = 10;
+            let captchaNum1, captchaNum2;
+
+            // --- Task Data ---
+            let tasks = [
+                { id: 1, title: 'Task 1: Sign Up', type: 'signup', description: 'Sign up using the direct link.', url: 'https://data963.click/7d03c4f7160be338fe14/cd73d9552f/?placementName=Taskering', completed: false },
+                { id: 2, title: 'Task 2: Visit Site', type: 'visit', description: 'Visit the website page for 60 seconds.', url: 'https://dailynewspaperwould.blogspot.com/2025/06/seo-more-details-info.html', completed: false },
+                { id: 3, title: 'Task 3: Sign Up', type: 'signup', description: 'Sign up using the direct link.', url: 'https://www.profitableratecpm.com/yffz90y5?key=a995dd2b77029fec837aa30082b9b6b9', completed: false },
+                { id: 4, title: 'Task 4: Visit Site', type: 'visit', description: 'Visit the website page for 60 seconds.', url: 'https://dailynewspaperwould.blogspot.com/p/free-5-bonus-just-sign-up-from.html', completed: false },
+                { id: 5, title: 'Task 5: Sign Up', type: 'signup', description: 'Sign up using the direct link.', url: 'https://data963.click/a39bff38e3b21c576c73/b0c1cd821a/?placementName=Taskering2', completed: false },
+                { id: 6, title: 'Task 6: Visit Site', type: 'visit', description: 'Visit the website page for 60 seconds.', url: 'https://tinyurl.com/ycxdbwwu', completed: false },
+                { id: 7, title: 'Task 7: Sign Up', type: 'signup', description: 'Sign up using the direct link.', url: 'https://www.profitableratecpm.com/yffz90y5?key=a995dd2b77029fec837aa30082b9b6b9', completed: false },
+                { id: 8, title: 'Task 8: Visit Site', type: 'visit', description: 'Visit the website page for 60 seconds.', url: 'https://dailynewspaperwould.blogspot.com/2025/05/bttc-red-pocket.html', completed: false },
+                { id: 9, title: 'Task 9: Sign Up', type: 'signup', description: 'Sign up using the direct link.', url: 'https://www.profitableratecpm.com/ear3xi8s?key=205b93a2d6fb27186ab5dd2e2b375490', completed: false },
+                { id: 10, title: 'Task 10: Visit Site', type: 'visit', description: 'Visit the website page for 60 seconds.', url: 'https://dailynewspaperwould.blogspot.com/2025/06/blog-post.html', completed: false }
+            ];
+
+            // --- Element Selectors ---
+            const captchaOverlay = document.getElementById('captcha-overlay');
+            const mainContent = document.getElementById('main-content');
+            const captchaQuestion = document.getElementById('captcha-question');
+            const captchaAnswer = document.getElementById('captcha-answer');
+            const verifyCaptchaBtn = document.getElementById('verify-captcha-btn');
+            const workTabContent = document.getElementById('work-tab-content');
+            const totalBalanceEl = document.getElementById('total-balance');
+            const referralCountEl = document.getElementById('referral-count');
+            const referralLinkInput = document.getElementById('referral-link-input');
+            const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
+
+            // --- State Management Functions ---
+            function saveState() {
+                const appState = {
+                    balance: userBalance,
+                    refCount: referralCount,
+                    taskData: tasks,
+                };
+                sessionStorage.setItem('appState', JSON.stringify(appState));
+            }
+
+            function loadState() {
+                const savedState = sessionStorage.getItem('appState');
+                if (savedState) {
+                    try {
+                        const appState = JSON.parse(savedState);
+                        userBalance = appState.balance || 0;
+                        referralCount = appState.refCount || 0;
+                        // Restore task completion status
+                        if (appState.taskData && appState.taskData.length === tasks.length) {
+                             tasks = appState.taskData;
+                        }
+                    } catch (e) {
+                        console.error("Could not parse saved state:", e);
+                        sessionStorage.removeItem('appState'); // Clear corrupted state
+                    }
+                }
+            }
+
+            // --- Main Functions ---
+            function generateCaptcha() {
+                captchaNum1 = Math.floor(Math.random() * 10) + 1;
+                captchaNum2 = Math.floor(Math.random() * 10) + 1;
+                captchaQuestion.textContent = `${captchaNum1} + ${captchaNum2} = ?`;
+            }
+            
+            function handleCaptchaVerification() {
+                const answer = parseInt(captchaAnswer.value, 10);
+                if (answer === (captchaNum1 + captchaNum2)) {
+                    sessionStorage.setItem('captchaVerified', 'true'); // Set verification flag
+                    showMainContent();
+                } else {
+                    alert('Wrong answer! Please try again.');
+                    captchaAnswer.style.borderColor = 'red';
+                    setTimeout(() => captchaAnswer.style.borderColor = 'var(--border-color)', 2000);
+                    generateCaptcha();
+                    captchaAnswer.value = '';
+                }
+            }
+
+            function showMainContent() {
+                captchaOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    captchaOverlay.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    mainContent.style.animation = 'fadeIn 1s ease-in-out';
+                    initializePage();
+                }, 500);
+            }
+
+            function updateBalanceDisplay() {
+                totalBalanceEl.textContent = `$${userBalance.toFixed(2)}`;
+                referralCountEl.textContent = referralCount;
+            }
+
+            function renderTasks() {
+                workTabContent.innerHTML = '';
+                tasks.forEach(task => {
+                    const taskCard = document.createElement('div');
+                    taskCard.className = 'task-card';
+                    if (task.completed) {
+                        taskCard.classList.add('completed');
+                    }
+                    taskCard.id = `task-${task.id}`;
+                    
+                    taskCard.innerHTML = `
+                        <div class="task-header">
+                            <span class="task-title">${task.title}</span>
+                            <span class="task-reward">$${TASK_REWARD.toFixed(2)}</span>
+                        </div>
+                        <p>${task.description}</p>
+                        <div class="task-actions">
+                            <button class="start-task-btn" data-id="${task.id}" ${task.completed ? 'disabled' : ''}>${task.completed ? 'Completed' : 'Start Task'}</button>
+                        </div>
+                        <div class="screenshot-upload" id="ss-upload-${task.id}">
+                            <p>Submit screenshot to confirm completion:</p>
+                            <input type="file" accept="image/*">
+                            <button class="submit-ss-btn" data-id="${task.id}">Submit Screenshot</button>
+                        </div>
+                    `;
+                    workTabContent.appendChild(taskCard);
+                });
+                addEventListenersToTasks();
+            }
+            
+            function addEventListenersToTasks() {
+                document.querySelectorAll('.start-task-btn').forEach(button => {
+                    button.addEventListener('click', handleTaskStart);
+                });
+                document.querySelectorAll('.submit-ss-btn').forEach(button => {
+                    button.addEventListener('click', handleScreenshotSubmit);
+                });
+            }
+
+            function handleTaskStart(e) {
+                const taskId = parseInt(e.target.dataset.id);
+                const task = tasks.find(t => t.id === taskId);
+                const startBtn = e.target;
+
+                if (!task || task.completed) return;
+                
+                window.open(task.url, '_blank');
+                startBtn.disabled = true;
+                const ssUploadDiv = document.getElementById(`ss-upload-${task.id}`);
+                
+                if (task.type === 'visit') {
+                    let timeLeft = 60;
+                    startBtn.textContent = `Task in progress... ${timeLeft}s`;
+                    const timerInterval = setInterval(() => {
+                        timeLeft--;
+                        startBtn.textContent = `Task in progress... ${timeLeft}s`;
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            startBtn.textContent = 'Time\'s Up!';
+                            alert(`Time for Task ${task.id} is up. You can now submit the screenshot.`);
+                            ssUploadDiv.classList.add('enabled');
+                        }
+                    }, 1000);
+                } else {
+                     startBtn.textContent = 'Link Opened';
+                     ssUploadDiv.classList.add('enabled');
+                }
+            }
+
+            function handleScreenshotSubmit(e) {
+                const taskId = parseInt(e.target.dataset.id);
+                const task = tasks.find(t => t.id === taskId);
+                
+                if (!task || task.completed) return;
+
+                const fileInput = document.querySelector(`#ss-upload-${task.id} input[type="file"]`);
+                if(fileInput.files.length === 0){
+                    alert('Please select a screenshot file to submit.');
+                    return;
+                }
+
+                task.completed = true;
+                userBalance += TASK_REWARD;
+                
+                updateBalanceDisplay();
+                saveState(); // Save state after update
+
+                const taskCard = document.getElementById(`task-${task.id}`);
+                taskCard.classList.add('completed');
+                taskCard.querySelector('.start-task-btn').textContent = 'Completed';
+                taskCard.querySelector('.submit-ss-btn').disabled = true;
+                taskCard.querySelector('.submit-ss-btn').style.cursor = 'not-allowed';
+
+                alert(`Task ${task.id} completed successfully! $${TASK_REWARD.toFixed(2)} has been added to your balance.`);
+            }
+            
+            function switchTab(activeBtnId, activeTabId) {
+                document.querySelectorAll('.footer-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+                document.getElementById(activeBtnId).classList.add('active');
+                document.getElementById(activeTabId).classList.add('active');
+            }
+
+            function setupReferralSystem() {
+                const uniqueUserId = `user_${Date.now().toString(36)}`;
+                const baseUrl = window.location.origin + window.location.pathname;
+                const referralLink = `${baseUrl}?ref=${uniqueUserId}`;
+                referralLinkInput.value = referralLink;
+
+                copyRefLinkBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(referralLink).then(() => {
+                        copyRefLinkBtn.textContent = 'Copied!';
+                        setTimeout(() => copyRefLinkBtn.textContent = 'Copy Referral Link', 2000);
+                    }, () => {
+                        alert('Failed to copy link.');
+                    });
+                });
+            }
+            
+            function checkForReferral() {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('ref') && !sessionStorage.getItem('referralApplied')) {
+                    userBalance += REFERRAL_REWARD;
+                    referralCount += 1;
+                    sessionStorage.setItem('referralApplied', 'true'); // Prevent re-applying bonus on reload
+                    alert(`Welcome! You've joined via a referral link. A bonus of $${REFERRAL_REWARD.toFixed(2)} has been added.`);
+                    saveState(); // Save state after applying bonus
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+            
+            function setupPaymentMethods() {
+                document.querySelectorAll('.payment-method img').forEach(img => {
+                    img.addEventListener('click', (e) => {
+                        if (userBalance < MIN_WITHDRAWAL) {
+                            alert(`Sorry, you need at least $${MIN_WITHDRAWAL.toFixed(2)} to request a withdrawal.`);
+                            return;
+                        }
+
+                        const method = e.target.dataset.method;
+                        let promptMessage = '';
+                        switch(method) {
+                            case 'Binance': promptMessage = 'Please enter your Binance Pay UID:'; break;
+                            case 'Paypal': promptMessage = 'Please enter your Paypal E-mail:'; break;
+                            case 'bKash': promptMessage = 'Please enter your bKash Number:'; break;
+                            case 'Nagad': promptMessage = 'Please enter your Nagad Number:'; break;
+                        }
+
+                        const paymentInfo = prompt(promptMessage);
+                        if (paymentInfo) {
+                            alert('Your request has been submitted. It will be reviewed by the admin team.');
+                        }
+                    });
+                });
+            }
+
+            function initializePage() {
+                checkForReferral();
+                renderTasks();
+                updateBalanceDisplay();
+                setupReferralSystem();
+                setupPaymentMethods();
+
+                // Footer button event listeners
+                document.getElementById('work-btn').addEventListener('click', () => switchTab('work-btn', 'work-tab-content'));
+                document.getElementById('wallet-btn').addEventListener('click', () => switchTab('wallet-btn', 'wallet-tab-content'));
+                document.getElementById('reffer-btn').addEventListener('click', () => switchTab('reffer-btn', 'reffer-tab-content'));
+            }
+            
+            // --- Initial Execution ---
+            loadState(); // Load any saved state first
+
+            if (sessionStorage.getItem('captchaVerified') === 'true') {
+                showMainContent(); // If already verified, skip captcha
+            } else {
+                captchaOverlay.style.display = 'flex'; // Ensure captcha is visible
+                generateCaptcha();
+                verifyCaptchaBtn.addEventListener('click', handleCaptchaVerification);
+            }
+        });
+    </script>
+</body>
+</html>
+<script async="async" data-cfasync="false" src="//pl26604197.profitableratecpm.com/0c31fdad5e5119b5a912196080729375/invoke.js"></script>
+<div id="container-0c31fdad5e5119b5a912196080729375"></div>
